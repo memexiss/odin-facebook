@@ -1,0 +1,4 @@
+<div id="<%= dom_id post %>">
+    <p class="author"><%= link_to @post.creator.name, user_path(@post.creator) %>:</p>
+    <p class="post-content"><%= post.body %></p>
+</div>

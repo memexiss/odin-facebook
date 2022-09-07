@@ -1,0 +1,21 @@
+<div class="row">
+<div class="col-lg-4 col-md-6 ml-auto mr-auto">
+
+<div class="col-lg-4 col-md-6 ml-auto mr-auto">
+<h1 class="row">Posts</h1>
+<%= link_to "New post", new_post_path, class: "text-success row" %>
+</div>
+
+<div id="posts">
+  <% @posts.each do |post| %>
+    <% if current_user == @post.creator %>
+    <p>
+      <%= link_to 'Edit', edit_post_path, class: "btn btn-outline-secondary" %>
+      <%= link_to 'Delete', post_path, method: :delete, class: "btn btn-outline-secondary",
+                            data: { confirm: "Delete this post?"} %>
+    </p>
+      <% end %>
+  <% end %>
+</div>
+</div>
+</div>
