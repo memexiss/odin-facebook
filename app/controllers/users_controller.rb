@@ -1,71 +1,38 @@
 class UsersController < ApplicationController
-    before_action :authenticate_user!
-    
-    def show
-      if params[:id]
-        @user = User.find(params[:id])
-      else
-        @user = current_user
-      end
-    end
-  
-    def posts
-      @user = User.find(params[:user_id])
-      @posts = Post.where(author: @user)
-                   .order(created_at: :desc)
-    end
-  
-    def photos
-      @user = User.find(params[:user_id])
-      @posts = @user.posts
-                    .joins(:photo_attachment)
-                    .order(created_at: :desc)
-    end
-  
-    def likes
-      @user = User.find(params[:user_id])
-      liked_posts_ids = Like.where(user_id: @user.id, likable_type: "Post")
-                            .pluck(:likable_id)
-      @posts = Post.where('id IN (?)', liked_posts_ids)
-    end
-  
-    def friends
-      @user = params[:user_id] ? User.find(params[:user_id]) : current_user
-      @friends = @user.friends
-    end
-  
-    def friend_requests
-      @invitations = current_user.friend_invitations
-                                 .includes(requester: { avatar_attachment: :blob} )
-                                 .order('users.name')
-    end
-  
-    def find_friends
-    end
-    
-    def profile
-        @user = User.find(params[:id])
-        @posts = current_user.posts.all
-        end
-
-        def index
-        @users = User.all
-        end
-  
-    def edit_profile
-      @user = current_user
-    end
-  
-    def update_profile
-      current_user.update(profile_params)
-      redirect_to current_user
-    end
-  
-    private
-  
-    def profile_params
-      params.require(:user)
-            .permit(:avatar, :location, :birthday, :occupation,
-                    :education1, :education2, :education3, :website)
-    end
+  def index
+    @users = User.all
   end
+
+  def show
+    @user = User.find(params[:id])
+  end
+
+  def request_friendship
+    requested_user = User.find_by_id(params[:id])
+    current_user.friend_request(requested_user)
+    redirect_to users_path, notice: "Your friend request was sent to #{requested_user.name}"
+  end
+
+  def accept_friendship
+    requesting_user = User.find_by_id(params[:id])
+    current_user.accept_request(requesting_user)
+    redirect_to users_path, notice: "You and #{requesting_user.name} are now friends"
+  end
+
+  def decline_fiendship
+    requesting_user = User.find_by_id(params[:id])
+    current_user.decline_request(requesting_user)
+    redirect_to users_path, notice: "You ignored the request from #{requesting_user.name}"
+  end
+
+  def remove_friendship
+    other_user = User.find_by_id(params[:id])
+    current_user.remove_friend(other_user)
+    redirect_to users_path, notice: "You and #{other_user.name} are no longer friends"
+  end
+
+  def others
+    User.where_not(current_user)
+  end
+
+end

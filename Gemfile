@@ -27,8 +27,6 @@ gem 'devise'
 
 gem 'flash_rails_messages'
 
-gem 'popular'
-
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 

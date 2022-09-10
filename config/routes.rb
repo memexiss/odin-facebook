@@ -1,22 +1,19 @@
 Rails.application.routes.draw do
-  resources :posts
-  devise_for :users
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Defines the root path route ("/")
-  # root "articles#index"
-  root "posts#index"
-  resources :friend_requests, only: :create do
+  root 'posts#index'
+  resources :posts do
+    resources :comments
     member do
-      post 'confirm'
-      delete 'delete'
+      get '/like', to: 'posts#like', as: :like
+      get '/unlike', to: 'posts#unlike', as: :unlike
     end
   end
-  get '/user/:id', to: 'users#profile', as: :user
-  get "post/edit"
-  get '/friends', to: 'users#friends', as: :friends
-  scope '/friends', as: :friends do
-    get 'find', to: 'users#find_friends'
-    get 'requests', to: 'users#friend_requests'
-  end
+  devise_for :users
+
+  get '/users', to: 'users#index', as: :users
+  get '/:id', to: 'users#show', as: :user
+  get '/:id/request', to: 'users#request_friendship', as: :request
+  get '/:id/accept', to: 'users#accept_friendship', as: :accept
+  get '/:id/decline', to: 'users#decline_fiendship', as: :decline
+  get '/:id/unfriend', to: 'users#remove_friendship', as: :unfriend
+
 end

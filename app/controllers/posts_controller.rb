@@ -1,66 +1,62 @@
 class PostsController < ApplicationController
   before_action :authenticate_user!
 
-  # GET /posts or /posts.json
   def index
-    @posts = Post.all.order("created_at DESC")
+    @post = current_user.posts.new
+    @posts = Post.all.order(created_at: :desc)
   end
 
-  # GET /posts/1 or /posts/1.json
-  def show
-    @post = Post.all.order("created_at DESC")
-    @users = User.all
-  end
-
-  # GET /posts/new
   def new
     @post = Post.new
   end
 
-  # GET /posts/1/edit
-  def edit
-  end
-  
   def create
-    @post = current_user.created_posts.build(post_params)
+    @post = current_user.posts.new(post_params)
     if @post.save
-      redirect_to  @post, notice: "Your post was created"
+      redirect_to posts_path, notice: "Your post was created"
     else
-      render :new
+      render :new, alert: "Your post was not created"
     end
   end
 
-  # PATCH/PUT /posts/1 or /posts/1.json
+  def show
+    @post = Post.find(params[:id])
+  end
+
+  def edit
+    @post = Post.find(params[:id])
+  end
+
   def update
-    respond_to do |format|
-      if @post.update(post_params)
-        format.html { redirect_to @post, notice: 'Post was successfully updated.' }
-        format.json { render :show, status: :ok, location: @post }
-      else
-        format.html { render :edit }
-        format.json { render json: @post.errors, status: :unprocessable_entity }
-      end
+    @post = Post.find(params[:id])
+    if @post.update(post_params)
+      redirect_back fallback_location: posts_path, notice: "Your post was updated"
+    else
+      render :edit, notice: "Something went wrong. Please try again."
     end
   end
 
-  # DELETE /posts/1 or /posts/1.json
   def destroy
+    @post = Post.find(params[:id])
     @post.destroy
+    redirect_to posts_path, notice: "Your post was deleted"
+  end
 
-    respond_to do |format|
-      format.html { redirect_to posts_url, notice: "Post was successfully destroyed." }
-      format.json { head :no_content }
-    end
+  def like
+    @post = Post.find(params[:id])
+    @post.likers << current_user
+    redirect_back fallback_location: posts_path
+  end
+
+  def unlike
+    @post = Post.find(params[:id])
+    @post.likers.delete(current_user)
+    redirect_back fallback_location: posts_path
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_post
-      @post = Post.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def post_params
-      params.require(:post).permit(:title, :body)
-    end
+  def post_params
+    params.require(:post).permit(:body)
+  end
 end
