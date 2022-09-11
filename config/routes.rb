@@ -8,12 +8,7 @@ Rails.application.routes.draw do
     end
   end
   devise_for :users
-
+  resources :friendships 
   get '/users', to: 'users#index', as: :users
   get '/:id', to: 'users#show', as: :user
-  get '/:id/request', to: 'users#request_friendship', as: :request
-  get '/:id/accept', to: 'users#accept_friendship', as: :accept
-  get '/:id/decline', to: 'users#decline_fiendship', as: :decline
-  get '/:id/unfriend', to: 'users#remove_friendship', as: :unfriend
-
 end

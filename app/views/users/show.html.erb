@@ -25,16 +25,17 @@
         <div class="card shadow-sm mt-3">
           <div class="card-body">
             <%= link_to post.user.name, user_path(post.user), class: "h5 d-inline text-dark text-decoration-none" %>
-            <a class="float-right" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-ellipsis-h text-muted"></i>
-            </a>
-            <div class="dropdown-menu">
-              <%= link_to 'Edit', edit_post_path(post), class: "dropdown-item" %>
-              <%= link_to 'Delete', post_path(post), method: :delete, class: "dropdown-item",
-                  data: { confirm: "Are you sure?"}%>
-            </div>
+            <% if post.user == current_user %>
+              <div class="float-right row px-2">
+                <%= link_to 'Edit', edit_post_path(post), class: "btn btn-outline-primary" %>
+                <%= button_to 'Delete', post_path(post), method: :delete, class: "btn btn-outline-danger",
+                    data: { confirm: "Are you sure?"}%>
+              </div>
+            <% end %>
+
             <p class="small"> <%= post.created_at.strftime('%b %e at %l:%M %p') %> </p>
             <p> <%= post.body %> </p>
+
             <hr>
 
             <% if post.likers.include?(current_user) %>
@@ -69,19 +70,27 @@
       </div>
     </div>
   </div>
+
   <div class="tab-pane fade" id="pills-friends" role="tabpanel" aria-labelledby="pills-friends-tab">
-    <div class="list-group shadow-sm mb-3">
-      <% if @user.friends.any? %>
-        <% @user.friends.each do |friend| %>
-          <div class="list-group-item">
-            <%= link_to friend.name, user_path(friend), class: "h6 text-dark text-decoration-none" %>
-          </div>
+    <div class="card shadow-sm">
+    <div class="card-body">
+    <h2>Following <%= (@user.friends.count) %></h2>
+      <div class="list-group-item">  
+        <% for friendship in @user.friendships %>
+            <%=h friendship.friend.name %>
+          <% if @user == current_user %>
+            <%= button_to "Unfollow", friendship_path(friendship), :method => :delete, class: "btn-sm btn btn-outline-danger" %>
+          <% end %>
         <% end %>
-      <% else %>
-      <div class="list-group-item">
-        <span class="text-muted">No friends yet</span>
-      </div>
-      <% end %>
+        </div>
+    </div>
+    <div class="card-body">
+      <h2><%= pluralize(@user.inverse_friends.count, 'Follower') %></h2>
+      <div class="list-group-item">  
+        <% for user in @user.inverse_friends %>
+          <li><%=h user.name %></li>
+        <% end %>
+    </div>
     </div>
   </div>
 </div>
